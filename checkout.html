@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping and Checkout - Stylewear</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            color: #f8fafc;
+            background:
+                radial-gradient(ellipse at 15% 20%, rgba(236, 72, 153, .32), transparent 35%),
+                radial-gradient(ellipse at 85% 80%, rgba(34, 211, 238, .24), transparent 38%),
+                linear-gradient(135deg, #101126, #211b46 55%, #111827);
+            background-attachment: fixed;
+        }
+
+        .card {
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, .09);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, .2);
+            backdrop-filter: blur(18px);
+        }
+
+        .form-control,
+        .form-select,
+        .list-group-item {
+            color: #f8fafc;
+            border-color: rgba(255, 255, 255, .2);
+            background-color: rgba(15, 23, 42, .45);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            color: #fff;
+            border-color: #f0abfc;
+            background-color: rgba(15, 23, 42, .65);
+            box-shadow: 0 0 0 3px rgba(232, 121, 249, .2);
+        }
+
+        .form-select option {
+            color: #111827;
+        }
+
+        .order-item-image {
+            width: 64px;
+            height: 72px;
+            flex: 0 0 64px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: rgba(255, 255, 255, .12);
+        }
+
+        .alert-info {
+            color: #f8fafc;
+            border-color: rgba(255, 255, 255, .18);
+            background: rgba(255, 255, 255, .09);
+        }
+
+        .btn-primary {
+            border: 0;
+            background: linear-gradient(100deg, #c026d3, #7c3aed 55%, #2563eb);
+        }
+    </style>
+</head>
+<body>
+    <main class="container py-4">
+        <h1 class="mb-4">Shipping and Checkout</h1>
+
+        <section id="shippingStep" class="row g-4">
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h4">Shipping details</h2>
+                        <form id="shippingForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" autocomplete="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Shipping address</label>
+                                <textarea class="form-control" id="address" rows="3" autocomplete="street-address" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="shippingMethod" class="form-label">Shipping method</label>
+                                <select class="form-select" id="shippingMethod" required>
+                                    <option value="">Select a shipping method</option>
+                                    <option value="standard">Standard shipping - Free</option>
+                                    <option value="express">Express shipping - $150.00</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Continue to payment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h4">Your order</h2>
+                        <ul id="orderItems" class="list-group list-group-flush mb-3"></ul>
+                        <p class="mb-1">Subtotal: $<span id="subtotal">0.00</span></p>
+                        <p class="mb-1">Shipping: $<span id="shippingCost">0.00</span></p>
+                        <p class="fw-bold">Total: $<span id="orderTotal">0.00</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="paymentStep" class="card d-none">
+            <div class="card-body">
+                <h2 class="h4">Payment</h2>
+                <p>Ship to: <strong id="shippingAddressSummary"></strong></p>
+                <p>Shipping method: <strong id="shippingMethodSummary"></strong></p>
+                <p class="fw-bold">Order total: $<span id="paymentTotal">0.00</span></p>
+                <form id="paymentForm">
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Payment method</label>
+                        <select class="form-select" id="paymentMethod" required>
+                            <option value="">Select a payment method</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="PayPal">PayPal</option>
+                            <option value="Cash on Delivery">Cash on Delivery</option>
+                        </select>
+                    </div>
+                    <button type="button" id="backToShipping" class="btn btn-secondary">Back to shipping</button>
+                    <button type="submit" class="btn btn-success">Place order</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="successStep" class="card d-none text-center">
+            <div class="card-body py-5">
+                <h2 class="text-success">Order successful!</h2>
+                <p id="successMessage" class="mb-4">Thank you for your purchase.</p>
+                <a class="btn btn-dark" href="rj.html">Back to products</a>
+            </div>
+        </section>
+
+        <section id="emptyCart" class="alert alert-info d-none">
+            <p>Your cart is empty.</p>
+            <a class="btn btn-dark" href="rj.html">Back to products</a>
+        </section>
+    </main>
+
+    <script>
+        const cartData = new URLSearchParams(window.location.search).get('cart');
+        const cart = cartData ? JSON.parse(cartData) : [];
+        const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+        const shippingForm = document.getElementById('shippingForm');
+        const shippingStep = document.getElementById('shippingStep');
+        const paymentStep = document.getElementById('paymentStep');
+        const successStep = document.getElementById('successStep');
+        const shippingMethod = document.getElementById('shippingMethod');
+        const shippingFee = () => shippingMethod.value === 'express' ? 150 : 0;
+
+        function updateOrderTotal() {
+            document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+            document.getElementById('shippingCost').innerText = shippingFee().toFixed(2);
+            document.getElementById('orderTotal').innerText = (subtotal + shippingFee()).toFixed(2);
+        }
+
+        if (cart.length === 0) {
+            shippingStep.classList.add('d-none');
+            document.getElementById('emptyCart').classList.remove('d-none');
+        } else {
+            const orderItems = document.getElementById('orderItems');
+            cart.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex align-items-center gap-3';
+
+                const image = document.createElement('img');
+                image.className = 'order-item-image';
+                image.src = item.image || 'fashion.jpg';
+                image.alt = item.name;
+
+                const details = document.createElement('span');
+                details.className = 'flex-grow-1';
+                details.innerText = item.name;
+
+                const price = document.createElement('strong');
+                price.innerText = `$${item.price.toFixed(2)}`;
+
+                listItem.append(image, details, price);
+                orderItems.appendChild(listItem);
+            });
+            updateOrderTotal();
+        }
+
+        shippingMethod.addEventListener('change', updateOrderTotal);
+
+        shippingForm.addEventListener('submit', event => {
+            event.preventDefault();
+            document.getElementById('shippingAddressSummary').innerText =
+                document.getElementById('address').value.trim();
+            document.getElementById('shippingMethodSummary').innerText =
+                shippingMethod.options[shippingMethod.selectedIndex].text;
+            document.getElementById('paymentTotal').innerText =
+                (subtotal + shippingFee()).toFixed(2);
+            shippingStep.classList.add('d-none');
+            paymentStep.classList.remove('d-none');
+        });
+
+        document.getElementById('backToShipping').addEventListener('click', () => {
+            paymentStep.classList.add('d-none');
+            shippingStep.classList.remove('d-none');
+        });
+
+        document.getElementById('paymentForm').addEventListener('submit', event => {
+            event.preventDefault();
+            const customerName = document.getElementById('name').value.trim();
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            document.getElementById('successMessage').innerText =
+                `Thank you, ${customerName}. Your order has been placed using ${paymentMethod}.`;
+            paymentStep.classList.add('d-none');
+            successStep.classList.remove('d-none');
+        });
+    </script>
+</body>
+</html>

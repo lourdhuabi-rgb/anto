@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        if (sessionStorage.getItem("authenticated") !== "true") {
+            window.location.replace("register.html");
+        }
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #f8fafc;
+            background:
+                radial-gradient(ellipse at 15% 20%, rgba(236, 72, 153, .32), transparent 35%),
+                radial-gradient(ellipse at 85% 80%, rgba(34, 211, 238, .24), transparent 38%),
+                linear-gradient(135deg, #101126, #211b46 55%, #111827);
+            background-attachment: fixed;
+        }
+        h1 {
+            background: rgba(255, 255, 255, .09);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, .16);
+            backdrop-filter: blur(18px);
+        }
+        img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            height: auto;
+        }
+        .page {
+            display: none;
+        }
+        .page.activepage {
+            display: block;
+        }
+        #productGrid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        #productGrid .card {
+            height: 100%;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        #productGrid .card-img-top {
+            display: block;
+            width: 100%;
+            height: 220px;
+            margin: 0;
+            object-fit: contain;
+            background-color: #f8f9fa;
+        }
+        #productGrid .card-body {
+            padding: 15px;
+        }
+        #productGrid .btn-primary {
+            width: 100%;
+            border-radius: 8px;
+            background-color: #198754;
+            border-color: #198754;
+        }
+        #productGrid .btn-primary:hover,
+        #productGrid .btn-primary:focus {
+            background-color: #146c43;
+            border-color: #13653f;
+        }
+        #productGrid .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        #productGrid .card-text {
+            font-weight: 700;
+            color: #333;
+        }
+        @media (max-width: 767px) {
+            #productGrid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 480px) {
+            #productGrid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .shop-navbar .container-fluid {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .shop-navbar .navbar-brand {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    
+    <h1>stylewear</h1>
+    <img src="fashion.jpg">
+    <section id="search">
+        <div class="container mt-3 mb-3">
+            <input id="productSearch" type="text" class="form-control" placeholder="Search products..." oninput="searchProducts()">
+        </div>
+    </section>
+    <!--navbar-->
+    <nav class="navbar navbar-dark bg-dark shop-navbar">
+        <div class="container-fluid">
+            <h4 class="navbar-brand"> </h4>
+            <button class="btn btn-warning d-flex align-items-center gap-2" type="button" onclick="opencart()">
+                <span aria-hidden="true">&#128722;</span>
+                <span>Cart</span>
+                <span id="cartcount" class="badge bg-dark rounded-pill" aria-label="Items in cart">0</span>
+            </button>
+        </div>
+    </nav>  
+    <div class="container mt-3">
+       <!--products page-->
+       <section id="productpage" class="page activepage">
+        <div id="productGrid"></div>
+       </section>
+    </div>
+    <script>
+        let cart=[];
+        let total=0;
+        const products = [
+            { name: 'Casual shirt', price: 1499, image: 'midhun.jpg' },
+            { name: 'Casual Shirt', price: 2499, image: 'midhun1.jpg' },
+            { name: 'Casual Shirt', price: 1499, image: 'website_2.webp' },
+            {name:'casual shirt', price: 1499, image: 'midhun2.jpg'},
+            {name:'casual shirt', price: 1499, image: 'midhun3.jpg'},
+            { name: 'Floral Maxi Dress', price: 2499, image: 'website_1.webp' },
+            { name: 'Floral Maxi Dress', price: 2499, image: 'website_1.webp' },
+            { name: 'Floral Maxi Dress', price: 2499, image: 'website_1.webp' },
+            { name: 'Floral Maxi Dress', price: 2499, image: 'website_1.webp' },
+            { name: 'Floral Maxi Dress', price: 2499, image: 'website_1.webp' },
+            {name:'Floral Maxi Dress', price: 2499, image: 'website_1.webp' },
+            { name: 'Kids Party Dress', price: 1999, image: 'website_3.webp' },
+            {name:'kids party dress', price: 1999, image: 'ag.jpg' },
+            {name:'kids party dress', price: 1999, image: 'ag1.jpg' },
+            {name:'kids party dress', price: 1999, image: 'ag2.jpg' },
+            {name:'kids party dress', price: 1999, image: 'ag3.jpg' },
+            { name: 'Traditional Saree', price: 2999, image: 'website_4.webp' },
+            { name: 'Traditional Saree', price: 2999, image: 'andham.jpg' },
+            { name: 'Traditional Saree', price: 2999, image: 'andham1.jpg' },
+            { name: 'Traditional Saree', price: 2999, image: 'andham2.jpg' },
+            { name: 'Traditional Saree', price: 2999, image: 'andham3.jpg' },
+            { name: 'Everyday Fashion', price: 1799, image: 'image.jpg' },
+            { name: 'Stylewear Collection', price: 2199, image: 'abi.jpg' },
+            {name:'casual shirt', price: 1499, image: 'midhun.jpg'},
+        ];
+
+        function renderProducts(filteredProducts = products) {
+            const productGrid = document.getElementById('productGrid');
+            productGrid.innerHTML = '';
+
+            if (!filteredProducts.length) {
+                productGrid.innerHTML = '<div class="col-12 text-center text-muted">No products found.</div>';
+                return;
+            }
+
+            filteredProducts.forEach((product) => {
+                const card = document.createElement('div');
+                card.className = 'product-item';
+                card.innerHTML = `
+                    <div class="card h-100">
+                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body">
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text">$${product.price.toFixed(2)}</p>
+                            <button class="btn btn-primary" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
+                        </div>
+                    </div>
+                `;
+                productGrid.appendChild(card);
+            });
+        }
+
+        function searchProducts() {
+            const searchValue = document.getElementById('productSearch').value.trim().toLowerCase();
+            const filteredProducts = products.filter(product =>
+                product.name.toLowerCase().includes(searchValue)
+            );
+            renderProducts(filteredProducts);
+        }
+
+        /*--add to cart--*/
+        function addToCart(productName, productPrice, productImage){
+            cart.push({name: productName, price: productPrice, image: productImage});
+            total+=productPrice;
+            document.getElementById('cartcount').innerText=cart.length;
+            alert(productName+' added to cart');
+        }
+        /*--open cart--*/
+        function opencart(){
+            window.location.href='checkout.html?cart=' + encodeURIComponent(JSON.stringify(cart));
+        }
+
+        document.getElementById('cartcount').innerText=cart.length;
+        renderProducts();
+    </script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-1a/pXj49ZQ1aHEmrJ+gMw1otqoVsYwlEnlD8mIfY2TV03r20Y0CN7uqx1tQogjPL" crossorigin="anonymous"></script>
+</body>
+</html>

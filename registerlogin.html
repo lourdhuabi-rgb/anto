@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            display: grid;
+            place-items: center;
+            font-family: Arial, sans-serif;
+            color: #f8fafc;
+            background:
+                radial-gradient(ellipse at 15% 20%, rgba(236, 72, 153, .32), transparent 35%),
+                radial-gradient(ellipse at 85% 80%, rgba(34, 211, 238, .24), transparent 38%),
+                linear-gradient(135deg, #101126, #211b46 55%, #111827);
+        }
+
+        .auth-card {
+            width: min(100%, 420px);
+            padding: 42px 36px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, .2);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, .09);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, .4);
+            backdrop-filter: blur(18px);
+        }
+
+        h2 {
+            margin: 0 0 28px;
+            font-size: 2rem;
+            letter-spacing: .03em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        input {
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .22);
+            outline: none;
+            background: rgba(15, 23, 42, .55);
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        input::placeholder {
+            color: #cbd5e1;
+        }
+
+        input:focus {
+            border-color: #f0abfc;
+            box-shadow: 0 0 0 3px rgba(232, 121, 249, .2);
+        }
+
+        button {
+            margin-top: 4px;
+            color: #fff;
+            font-weight: 700;
+            border: 0;
+            cursor: pointer;
+            background: linear-gradient(100deg, #c026d3, #7c3aed 55%, #2563eb);
+            box-shadow: 0 10px 24px rgba(124, 58, 237, .3);
+            transition: transform .2s, filter .2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.12);
+        }
+
+        p {
+            margin: 24px 0 0;
+            color: #dbeafe;
+        }
+
+        a {
+            color: #f0abfc;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 34px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="auth-card">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <p>Need an account? <a href="register.html">Register here</a></p>
+    </main>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById("loginUsername").value.trim();
+            const password = document.getElementById("loginPassword").value;
+            const savedUsername = localStorage.getItem("username");
+            const savedPassword = localStorage.getItem("password");
+
+            if (!savedUsername || !savedPassword) {
+                alert("No account found. Please register first.");
+                window.location.href = "register.html";
+                return;
+            }
+
+            if (username === savedUsername && password === savedPassword) {
+                sessionStorage.setItem("authenticated", "true");
+                alert("Login successful");
+                window.location.href = "main.html";
+            } else {
+                alert("Invalid username or password");
+            }
+        });
+    </script>
+</body>
+</html>
